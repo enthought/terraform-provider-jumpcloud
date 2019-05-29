@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/cognotektgmbh/terraform-provider-jumpcloud/jumpcloud"
+	"dbolack/terraform-provider-jumpcloud/jumpcloud"
+
 	"github.com/hashicorp/terraform/plugin"
 	"github.com/hashicorp/terraform/terraform"
 )

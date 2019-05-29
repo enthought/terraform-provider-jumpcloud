@@ -40,6 +40,31 @@ func resourceUser() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"ldap_binding": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"id_sync": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"global_admin": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"passwordless_sudo": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"unix_uid": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"unix_guid": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+
 			// Currently, only the options necessary for our use case are implemented
 			// JumpCloud offers a lot more
 		},
@@ -67,6 +92,12 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 		Firstname:                   d.Get("firstname").(string),
 		Lastname:                    d.Get("lastname").(string),
 		EnableUserPortalMultifactor: d.Get("enable_mfa").(bool),
+		LdapBindingUser:             d.Get("ldap_binding").(bool),
+		EnableManagedUid:            d.Get("id_sync").(bool),
+		Sudo:                        d.Get("global_admin").(bool),
+		PasswordlessSudo:            d.Get("passwordless_sudo").(bool),
+		UnixUid:                     d.Get("unix-uid").(int32),
+		UnixGuid:                    d.Get("unix-guid").(int32),
 	}
 
 	req := map[string]interface{}{
@@ -116,6 +147,25 @@ func resourceUserRead(d *schema.ResourceData, m interface{}) error {
 	if err := d.Set("enable_mfa", res.EnableUserPortalMultifactor); err != nil {
 		return err
 	}
+	if err := d.Set("ldap_binding", res.LdapBindingUser); err != nil {
+		return err
+	}
+	if err := d.Set("id_sync", res.EnableManagedUid); err != nil {
+		return err
+	}
+	if err := d.Set("global_admin", res.Sudo); err != nil {
+		return err
+	}
+	if err := d.Set("passwordless_sudo", res.PasswordlessSudo); err != nil {
+		return err
+	}
+	if err := d.Set("unix_uid", res.UnixUid); err != nil {
+		return err
+	}
+	if err := d.Set("unix_gid", res.UnixGuid); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -131,6 +181,13 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 		Firstname:                   d.Get("firstname").(string),
 		Lastname:                    d.Get("lastname").(string),
 		EnableUserPortalMultifactor: d.Get("enable_mfa").(bool),
+		LdapBindingUser:             d.Get("ldap_binding").(bool),
+		EnableManagedUid:            d.Get("id_sync").(bool),
+		Sudo:                        d.Get("global_admin").(bool),
+		// PasswordlessSudo:            d.Get("passwordless_sudo").(bool),
+		// This is not partof this object for some reason, changes to this will need to happen elsewhere
+		UnixUid:  d.Get("unix-uid").(int32),
+		UnixGuid: d.Get("unix-guid").(int32),
 	}
 
 	req := map[string]interface{}{
