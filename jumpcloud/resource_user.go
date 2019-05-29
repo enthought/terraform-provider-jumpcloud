@@ -64,7 +64,34 @@ func resourceUser() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-
+			"location": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"cost_center": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"employee type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"company": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"employee_identifier": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"job_title": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"department": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			// Currently, only the options necessary for our use case are implemented
 			// JumpCloud offers a lot more
 		},
@@ -95,9 +122,15 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 		LdapBindingUser:             d.Get("ldap_binding").(bool),
 		EnableManagedUid:            d.Get("id_sync").(bool),
 		Sudo:                        d.Get("global_admin").(bool),
-		PasswordlessSudo:            d.Get("passwordless_sudo").(bool),
 		UnixUid:                     d.Get("unix-uid").(int32),
 		UnixGuid:                    d.Get("unix-guid").(int32),
+		Location:                    d.Get("location").(string),
+		CostCenter:                  d.Get("cost_center").(string),
+		EmployeeType:                d.Get("employee_type").(string),
+		Company:                     d.Get("company").(string),
+		EmployeeIdentifier:          d.Get("employee_identifier").(string),
+		JobTitle:                    d.Get("job_title").(string),
+		Department:                  d.Get("department").(string),
 	}
 
 	req := map[string]interface{}{
@@ -156,9 +189,6 @@ func resourceUserRead(d *schema.ResourceData, m interface{}) error {
 	if err := d.Set("global_admin", res.Sudo); err != nil {
 		return err
 	}
-	if err := d.Set("passwordless_sudo", res.PasswordlessSudo); err != nil {
-		return err
-	}
 	if err := d.Set("unix_uid", res.UnixUid); err != nil {
 		return err
 	}
@@ -184,10 +214,15 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 		LdapBindingUser:             d.Get("ldap_binding").(bool),
 		EnableManagedUid:            d.Get("id_sync").(bool),
 		Sudo:                        d.Get("global_admin").(bool),
-		// PasswordlessSudo:            d.Get("passwordless_sudo").(bool),
-		// This is not partof this object for some reason, changes to this will need to happen elsewhere
-		UnixUid:  d.Get("unix-uid").(int32),
-		UnixGuid: d.Get("unix-guid").(int32),
+		UnixUid:                     d.Get("unix-uid").(int32),
+		UnixGuid:                    d.Get("unix-guid").(int32),
+		Location:                    d.Get("location").(string),
+		CostCenter:                  d.Get("cost_center").(string),
+		EmployeeType:                d.Get("employee_type").(string),
+		Company:                     d.Get("company").(string),
+		EmployeeIdentifier:          d.Get("employee_identifier").(string),
+		JobTitle:                    d.Get("job_title").(string),
+		Department:                  d.Get("department").(string),
 	}
 
 	req := map[string]interface{}{
