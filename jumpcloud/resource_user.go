@@ -72,7 +72,7 @@ func resourceUser() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"employee type": {
+			"employee_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -89,6 +89,96 @@ func resourceUser() *schema.Resource {
 				Optional: true,
 			},
 			"department": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"work": &schema.Schema{
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"phone": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"mobile": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"fax": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"country": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"address": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"pobox": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"locality": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"region": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"postal_code": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"home": &schema.Schema{
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"phone": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"mobile": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"country": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"address": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"pobox": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"locality": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"region": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"postal_code": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"payload": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -109,6 +199,11 @@ func convertV2toV1Config(v2config *jcapiv2.Configuration) *jcapiv1.Configuration
 	return configv1
 }
 
+func setWithDefaultInt(s interface{}, defaultVal int32) int32 {
+	fmt.Printf("%+v\n", s)
+	return -1
+}
+
 func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 	configv1 := convertV2toV1Config(m.(*jcapiv2.Configuration))
 	client := jcapiv1.NewAPIClient(configv1)
@@ -122,8 +217,6 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 		LdapBindingUser:             d.Get("ldap_binding").(bool),
 		EnableManagedUid:            d.Get("id_sync").(bool),
 		Sudo:                        d.Get("global_admin").(bool),
-		UnixUid:                     d.Get("unix-uid").(int32),
-		UnixGuid:                    d.Get("unix-guid").(int32),
 		Location:                    d.Get("location").(string),
 		CostCenter:                  d.Get("cost_center").(string),
 		EmployeeType:                d.Get("employee_type").(string),
@@ -131,6 +224,13 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 		EmployeeIdentifier:          d.Get("employee_identifier").(string),
 		JobTitle:                    d.Get("job_title").(string),
 		Department:                  d.Get("department").(string),
+	}
+
+	if d.Get("unix-uid") != nil {
+		payload.UnixUid = d.Get("unix-uid").(int32)
+	}
+	if d.Get("unix-guid") != nil {
+		payload.UnixGuid = d.Get("unix-guid").(int32)
 	}
 
 	req := map[string]interface{}{
@@ -192,8 +292,44 @@ func resourceUserRead(d *schema.ResourceData, m interface{}) error {
 	if err := d.Set("unix_uid", res.UnixUid); err != nil {
 		return err
 	}
-	if err := d.Set("unix_gid", res.UnixGuid); err != nil {
+	if err := d.Set("unix_guid", res.UnixGuid); err != nil {
 		return err
+	}
+
+	if err := d.Set("location", res.Location); err != nil {
+		return err
+	}
+	if err := d.Set("cost_center", res.CostCenter); err != nil {
+		return err
+	}
+	if err := d.Set("employee_type", res.EmployeeType); err != nil {
+		return err
+	}
+	if err := d.Set("company", res.Company); err != nil {
+		return err
+	}
+	if err := d.Set("employee_identifier", res.EmployeeIdentifier); err != nil {
+		return err
+	}
+	if err := d.Set("job_title", res.JobTitle); err != nil {
+		return err
+	}
+	if err := d.Set("department", res.Department); err != nil {
+		return err
+	}
+
+	if err := d.Set("payload", fmt.Sprintf("%+v", res)); err != nil {
+		return err
+	}
+
+	for _, element := range res.PhoneNumbers {
+		work := d.Get("work").(schema.ResourceData)
+		//home = d.Get("home")
+		if element.Type_ == "work" {
+			if err := work.Set("phone", element.Number); err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
@@ -214,8 +350,6 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 		LdapBindingUser:             d.Get("ldap_binding").(bool),
 		EnableManagedUid:            d.Get("id_sync").(bool),
 		Sudo:                        d.Get("global_admin").(bool),
-		UnixUid:                     d.Get("unix-uid").(int32),
-		UnixGuid:                    d.Get("unix-guid").(int32),
 		Location:                    d.Get("location").(string),
 		CostCenter:                  d.Get("cost_center").(string),
 		EmployeeType:                d.Get("employee_type").(string),
@@ -223,6 +357,13 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 		EmployeeIdentifier:          d.Get("employee_identifier").(string),
 		JobTitle:                    d.Get("job_title").(string),
 		Department:                  d.Get("department").(string),
+	}
+
+	if d.Get("unix-uid") != nil {
+		payload.UnixUid = d.Get("unix-uid").(int32)
+	}
+	if d.Get("unix-guid") != nil {
+		payload.UnixGuid = d.Get("unix-guid").(int32)
 	}
 
 	req := map[string]interface{}{
