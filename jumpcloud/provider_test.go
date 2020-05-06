@@ -5,13 +5,12 @@ package jumpcloud
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 var (
 	testAccProviders map[string]terraform.ResourceProvider
-	testAccProvider  *schema.Provider
+	testAccProvider  terraform.ResourceProvider
 )
 
 func init() {
