@@ -1,11 +1,7 @@
-install: deps
+install: 
 	mkdir -p ~/.terraform.d/plugins
-	go build -o ~/.terraform.d/plugins/terraform-provider-jumpcloud
-deps:
-	dep ensure
-update-deps:
-	dep ensure -update
-build: deps
-	go build .
-testacc: deps
-	TF_ACC=true go test -v ./...
+	GO111MODULE=on go build -o ~/.terraform.d/plugins/terraform-provider-jumpcloud
+build:
+	GO111MODULE=on go build .
+testacc: 
+	TF_ACC=true GO111MODULE=on go test -v ./...
