@@ -5,7 +5,7 @@ language: go
 
 matrix:
   include:
-    - go: 1.12.x
+    - go: 1.12.5
 
 script:
   # - env GO111MODULE=on go test ./... # replace this with your test script
