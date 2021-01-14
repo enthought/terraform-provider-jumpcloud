@@ -2,6 +2,7 @@ package jumpcloud
 
 import (
 	"context"
+	"fmt"
 
 	jcapiv2 "github.com/TheJumpCloud/jcapi-go/v2"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -13,11 +14,11 @@ func dataResourceLdapServer() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
-			"id": {
+			"ldap_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"user_lockout_action": {
 				Type:     schema.TypeString,
@@ -36,10 +37,18 @@ func dataResourceLdapServerRead(d *schema.ResourceData, m interface{}) error {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
-	filter_by_name := [...]string{"name:eq:" + d.Get("name").(string)}
+	var ldap_filter []string
+
+	if len(d.Get("ldap_id").(string)) > 0 {
+		ldap_filter = append(ldap_filter, "id:eq:"+d.Get("ldap_id").(string))
+	} else if len(d.Get("name").(string)) > 0 {
+		ldap_filter = append(ldap_filter, "name:eq:"+d.Get("name").(string))
+	} else {
+		return fmt.Errorf("ldap_id or name must be set for jumpcloud_ldap_server")
+	}
 
 	payload := map[string]interface{}{
-		"filter": filter_by_name,
+		"filter": ldap_filter,
 	}
 
 	req := map[string]interface{}{
@@ -55,9 +64,11 @@ func dataResourceLdapServerRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if err := d.Set("id", res[0].Id); err != nil {
+	if err := d.Set("ldap_id", res[0].Id); err != nil {
 		return err
 	}
+
+	d.SetId(d.Get("ldap_id").(string))
 
 	if err := d.Set("user_lockout_action", res[0].UserLockoutAction); err != nil {
 		return err
