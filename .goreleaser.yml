@@ -44,7 +44,7 @@ release:
 # Default is extracted from the origin remote URL or empty if its private hosted.
   github:
     owner: enthought
-    name: terraform-provider-appveyor
+    name: terraform-provider-jumpcloud
 
   # If set to true, will not auto-publish the release.
   # Default is false.
