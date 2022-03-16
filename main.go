@@ -1,16 +1,30 @@
 package main
 
 import (
-	"enthought/jumpcloud/jumpcloud"
+	"github.com/enthought/terraform-provider-jumpcloud/jumpcloud"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+)
 
-	"github.com/hashicorp/terraform-plugin-sdk/plugin"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+var (
+	// these will be set by the goreleaser configuration
+	// to appropriate values for the compiled binary
+	version string = "dev"
+
+	// goreleaser can also pass the specific commit if you want
+	// commit  string = ""
 )
 
 func main() {
-	plugin.Serve(&plugin.ServeOpts{
-		ProviderFunc: func() terraform.ResourceProvider {
-			return jumpcloud.Provider()
-		},
-	})
+
+	var debugMode bool
+
+	opts := &plugin.ServeOpts{
+		Debug: debugMode,
+
+		ProviderAddr: "terraform.enthought.com/enthought/jumpcloud",
+
+		ProviderFunc: jumpcloud.New(version),
+	}
+
+	plugin.Serve(opts)
 }
