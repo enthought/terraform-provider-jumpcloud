@@ -1,3 +1,12 @@
+terraform {
+
+  required_providers {
+    jumpcloud = {
+      source = "terraform.enthought.com/providers/jumpcloud"
+    }
+  }
+
+}
 resource "jumpcloud_user_group" "pink_floyd" {
   name = "PinkFloyd"
 }

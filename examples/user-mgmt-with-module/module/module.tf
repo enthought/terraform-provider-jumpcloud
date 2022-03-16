@@ -1,3 +1,14 @@
+terraform {
+
+  required_providers {
+    jumpcloud = {
+      source = "terraform.enthought.com/providers/jumpcloud"
+    }
+  }
+
+}
+
+
 # All variables are mandatory, no defaults
 variable "band_id" {}
 variable "position_id" {}
