@@ -22,6 +22,18 @@ cd $GOPATH/src/github.com/cognotektgmbh/terraform-provider-jumpcloud
 make build
 ```
 
+## Releasing the provider
+
+Use goreleaser
+
+```
+git tag -a $NEW_VERSION -m "REL: release $NEW_VERSION of the jumpcloud provider"
+git push --tags
+goreleaser release --rm-dist
+```
+
+Once done and thoroughly tested, update the `deploy_providers.sh script in the main terraform repository
+and deploy the new version to the users.
 ## Using the provider
 
 If you're building the provider, follow the instructions to [install it as a plugin.](https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin) After placing it into your plugins directory,  run `terraform init` to initialize it.
