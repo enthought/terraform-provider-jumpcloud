@@ -27,12 +27,14 @@ func Provider() *schema.Provider {
 			"jumpcloud_user_group":                 resourceUserGroup(),
 			"jumpcloud_user_group_membership":      resourceUserGroupMembership(),
 			"jumpcloud_user_group_ldap_membership": resourceUserGroupLdapMembership(),
+			"jumpcloud_user_group_association":     resourceUserGroupAssociation(),
 			"jumpcloud_system_group":               resourceGroupsSystem(),
 		},
-		ConfigureFunc: providerConfigure,
 		DataSourcesMap: map[string]*schema.Resource{
 			"jumpcloud_ldap_server": dataResourceLdapServer(),
+			"jumpcloud_application": dataSourceApplication(),
 		},
+		ConfigureFunc: providerConfigure,
 	}
 }
 
