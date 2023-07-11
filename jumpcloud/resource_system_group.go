@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	jcapiv2 "github.com/TheJumpCloud/jcapi-go/v2"
-        "github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceGroupsSystem() *schema.Resource {
@@ -70,7 +70,7 @@ func resourceGroupsSystemList_match(d *schema.ResourceData, m interface{}) (jcap
 		"", headerAccept, optional)
 	if err == nil {
 		if len(result) < 1 {
-			return jcapiv2.SystemGroup{}, fmt.Errorf("System Group \"%s\" not found.", d.Id())
+			return jcapiv2.SystemGroup{}, fmt.Errorf("system Group \"%s\" not found", d.Id())
 		} else {
 			return result[0], nil
 		}
@@ -83,14 +83,12 @@ func resourceGroupsSystemRead(d *schema.ResourceData, m interface{}) error {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
-	var id string
-
-	id = d.Get("jc_id").(string)
+	var id string = d.Get("jc_id").(string)
 
 	if id == "" {
 		id_lookup, err := resourceGroupsSystemList_match(d, m)
 		if err != nil {
-			return fmt.Errorf("Unable to locate ID for group %s, %+v",
+			return fmt.Errorf("unable to locate ID for group %s, %+v",
 				d.Get("name"), err)
 		}
 		id = id_lookup.Id
@@ -117,8 +115,7 @@ func resourceGroupsSystemUpdate(d *schema.ResourceData, m interface{}) error {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
-	var id string
-	id = d.Get("jc_id").(string)
+	var id string = d.Get("jc_id").(string)
 
 	body := jcapiv2.SystemGroupData{Name: d.Get("name").(string)}
 
@@ -144,8 +141,7 @@ func resourceGroupsSystemDelete(d *schema.ResourceData, m interface{}) error {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
-	var id string
-	id = d.Get("jc_id").(string)
+	var id string = d.Get("jc_id").(string)
 
 	res, err := client.SystemGroupsApi.GroupsSystemDelete(context.TODO(),
 		id, "", headerAccept, nil)
