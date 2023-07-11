@@ -1,4 +1,4 @@
-module github.com/cognotektgmbh/terraform-provider-jumpcloud
+module github.com/enthought/terraform-provider-jumpcloud
 
 go 1.15
 

@@ -7,18 +7,18 @@
 
 ## Building The Provider
 
-Clone repository to: `$GOPATH/src/github.com/cognotektgmbh/terraform-provider-jumpcloud`
+Clone repository to: `$GOPATH/src/github.com/enthought/terraform-provider-jumpcloud`
 
 ```sh
-mkdir -p $GOPATH/src/github.com/cognotektgmbh
-cd $GOPATH/src/github.com/cognotektgmbh
-git clone git@github.com:cognotektgmbh/terraform-provider-jumpcloud
+mkdir -p $GOPATH/src/github.com/enthought
+cd $GOPATH/src/github.com/enthought
+git clone git@github.com:enthought/terraform-provider-jumpcloud
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-cd $GOPATH/src/github.com/cognotektgmbh/terraform-provider-jumpcloud
+cd $GOPATH/src/github.com/enthought/terraform-provider-jumpcloud
 make build
 ```
 
