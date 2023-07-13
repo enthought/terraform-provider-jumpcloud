@@ -14,16 +14,19 @@ func dataSourceApplication() *schema.Resource {
 		ReadContext: dataSourceApplicationRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The (display) name of the application.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"display_label": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The display label of the application.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The ID of the application.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 		},
 	}
@@ -54,5 +57,5 @@ func dataSourceApplicationRead(ctx context.Context, d *schema.ResourceData, m in
 		}
 	}
 
-	return diag.Errorf("no application found with the provided filters")
+	return diag.Errorf("no application found with the provided name or display_label")
 }
