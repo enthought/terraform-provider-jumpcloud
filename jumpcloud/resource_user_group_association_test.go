@@ -19,7 +19,7 @@ func TestAccUserGroupAssociation(t *testing.T) {
 			{
 				Config: testAccUserGroupAssociation(rName),
 				Check: resource.TestCheckResourceAttrSet("jumpcloud_user_group_association.test_user_group_association_"+rName,
-					"object_id"),
+					"appid"),
 			},
 		},
 	})
@@ -36,8 +36,8 @@ func testAccUserGroupAssociation(name string) string {
 		}
 
 		resource "jumpcloud_user_group_association" "test_user_group_association_%s" {
-			group_id = jumpcloud_user_group.test_user_group_%s.id
-			object_id = data.jumpcloud_application.test_application_%s.id
+			groupid = jumpcloud_user_group.test_user_group_%s.id
+			appid = data.jumpcloud_application.test_application_%s.id
 		}
   `, name, name, name, name, name, name)
 }
