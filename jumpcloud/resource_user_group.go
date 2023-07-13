@@ -2,18 +2,18 @@ package jumpcloud
 
 import (
 	"context"
-	"fmt"
 
 	jcapiv2 "github.com/TheJumpCloud/jcapi-go/v2"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceUserGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceUserGroupCreate,
-		Read:   resourceUserGroupRead,
-		Update: resourceUserGroupUpdate,
-		Delete: resourceUserGroupDelete,
+		CreateContext: resourceUserGroupCreate,
+		ReadContext:   resourceUserGroupRead,
+		UpdateContext: resourceUserGroupUpdate,
+		DeleteContext: resourceUserGroupDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -21,12 +21,12 @@ func resourceUserGroup() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func resourceUserGroupCreate(d *schema.ResourceData, m interface{}) error {
+func resourceUserGroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
@@ -35,19 +35,18 @@ func resourceUserGroupCreate(d *schema.ResourceData, m interface{}) error {
 	req := map[string]interface{}{
 		"body": body,
 	}
-	group, res, err := client.UserGroupsApi.GroupsUserPost(context.TODO(),
-		"", headerAccept, req)
+	group, res, err := client.UserGroupsApi.GroupsUserPost(ctx, "", headerAccept, req)
 	if err != nil {
 		// TODO: sort out error essentials
-		return fmt.Errorf("error creating user group %s: %s - response = %+v",
+		return diag.Errorf("error creating user group %s: %s - response = %+v",
 			(req["body"].(jcapiv2.UserGroupPost)).Name, err, res)
 	}
 
 	d.SetId(group.Id)
-	return resourceUserGroupRead(d, m)
+	return resourceUserGroupRead(ctx, d, m)
 }
 
-func resourceUserGroupRead(d *schema.ResourceData, m interface{}) error {
+func resourceUserGroupRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
@@ -58,19 +57,19 @@ func resourceUserGroupRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(res.Id)
 
 	if err := d.Set("name", res.Name); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func resourceUserGroupUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceUserGroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
@@ -84,13 +83,13 @@ func resourceUserGroupUpdate(d *schema.ResourceData, m interface{}) error {
 		d.Id(), "", headerAccept, req)
 	if err != nil {
 		// TODO: sort out error essentials
-		return fmt.Errorf("error deleting user group:%s; response = %+v", err, res)
+		return diag.Errorf("error updating user group:%s; response = %+v", err, res)
 	}
 
-	return resourceUserGroupRead(d, m)
+	return resourceUserGroupRead(ctx, d, m)
 }
 
-func resourceUserGroupDelete(d *schema.ResourceData, m interface{}) error {
+func resourceUserGroupDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
@@ -98,7 +97,7 @@ func resourceUserGroupDelete(d *schema.ResourceData, m interface{}) error {
 		d.Id(), "", headerAccept, nil)
 	if err != nil {
 		// TODO: sort out error essentials
-		return fmt.Errorf("error deleting user group:%s; response = %+v", err, res)
+		return diag.Errorf("error deleting user group:%s; response = %+v", err, res)
 	}
 	d.SetId("")
 	return nil

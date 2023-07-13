@@ -5,14 +5,15 @@ import (
 	"strings"
 
 	jcapiv2 "github.com/TheJumpCloud/jcapi-go/v2"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceUserGroupLdapMembership() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceUserGroupLdapMembershipCreate,
-		Read:   resourceUserGroupLdapMembershipRead,
-		Delete: resourceUserGroupLdapMembershipDelete,
+		CreateContext: resourceUserGroupLdapMembershipCreate,
+		ReadContext:   resourceUserGroupLdapMembershipRead,
+		DeleteContext: resourceUserGroupLdapMembershipDelete,
 		Schema: map[string]*schema.Schema{
 			"ldap_id": {
 				Type:     schema.TypeString,
@@ -26,13 +27,12 @@ func resourceUserGroupLdapMembership() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func resourceUserGroupLdapMembershipCreate(d *schema.ResourceData, m interface{}) error {
-
+func resourceUserGroupLdapMembershipCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
@@ -49,19 +49,18 @@ func resourceUserGroupLdapMembershipCreate(d *schema.ResourceData, m interface{}
 		"body": payload,
 	}
 
-	_, err := client.UserGroupsApi.GraphUserGroupAssociationsPost(context.TODO(),
-		ugId, "", headerAccept, req)
+	_, err := client.UserGroupsApi.GraphUserGroupAssociationsPost(ctx, ugId, "", headerAccept, req)
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(ugId + ":" + ldapId)
-	return resourceUserGroupLdapMembershipRead(d, m)
+	return resourceUserGroupLdapMembershipRead(ctx, d, m)
 
 }
 
-func resourceUserGroupLdapMembershipRead(d *schema.ResourceData, m interface{}) error {
+func resourceUserGroupLdapMembershipRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
@@ -74,23 +73,22 @@ func resourceUserGroupLdapMembershipRead(d *schema.ResourceData, m interface{}) 
 		"targets": ldapId,
 	}
 
-	_, _, err := client.UserGroupsApi.GraphUserGroupTraverseLdapServer(context.TODO(),
-		ugId, "", "", req)
+	_, _, err := client.UserGroupsApi.GraphUserGroupTraverseLdapServer(ctx, ugId, "", "", req)
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := d.Set("usergroup_id", ugId); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("ldap_id", ldapId[0]); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return nil
 }
 
-func resourceUserGroupLdapMembershipDelete(d *schema.ResourceData, m interface{}) error {
+func resourceUserGroupLdapMembershipDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
@@ -109,11 +107,10 @@ func resourceUserGroupLdapMembershipDelete(d *schema.ResourceData, m interface{}
 		"body": payload,
 	}
 
-	_, err := client.UserGroupsApi.GraphUserGroupAssociationsPost(context.TODO(),
-		ugId, "", headerAccept, req)
+	_, err := client.UserGroupsApi.GraphUserGroupAssociationsPost(ctx, ugId, "", headerAccept, req)
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

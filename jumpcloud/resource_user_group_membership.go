@@ -5,17 +5,18 @@ import (
 	"strings"
 
 	jcapiv2 "github.com/TheJumpCloud/jcapi-go/v2"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceUserGroupMembership() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceUserGroupMembershipCreate,
-		Read:   resourceUserGroupMembershipRead,
+		CreateContext: resourceUserGroupMembershipCreate,
+		ReadContext:   resourceUserGroupMembershipRead,
 		// We must not have an update routine as the association cannot be updated.
 		// Any change in one of the elements forces a recreation of the resource
-		Update: nil,
-		Delete: resourceUserGroupMembershipDelete,
+		UpdateContext: nil,
+		DeleteContext: resourceUserGroupMembershipDelete,
 		Schema: map[string]*schema.Schema{
 			"userid": {
 				Type:     schema.TypeString,
@@ -29,7 +30,7 @@ func resourceUserGroupMembership() *schema.Resource {
 			},
 		},
 		Importer: &schema.ResourceImporter{
-			State: userGroupMembershipImporter,
+			StateContext: userGroupMembershipImporter,
 		},
 	}
 }
@@ -38,16 +39,14 @@ func resourceUserGroupMembership() *schema.Resource {
 // populated.- In our case, we need the group ID and user ID to do the read - But since our
 // artificial resource ID is simply the concatenation of user ID group ID seperated by  a '/',
 // we can derive both values during our import process
-func userGroupMembershipImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+func userGroupMembershipImporter(_ context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 	s := strings.Split(d.Id(), "/")
 	d.Set("groupid", s[0])
 	d.Set("userid", s[1])
 	return []*schema.ResourceData{d}, nil
 }
 
-func modifyUserGroupMembership(client *jcapiv2.APIClient,
-	d *schema.ResourceData, action string) error {
-
+func modifyUserGroupMembership(ctx context.Context, client *jcapiv2.APIClient, d *schema.ResourceData, action string) error {
 	payload := jcapiv2.UserGroupMembersReq{
 		Op:    action,
 		Type_: "user",
@@ -58,24 +57,23 @@ func modifyUserGroupMembership(client *jcapiv2.APIClient,
 		"body": payload,
 	}
 
-	_, err := client.UserGroupMembersMembershipApi.GraphUserGroupMembersPost(
-		context.TODO(), d.Get("groupid").(string), "", "", req)
+	_, err := client.UserGroupMembersMembershipApi.GraphUserGroupMembersPost(ctx, d.Get("groupid").(string), "", "", req)
 
 	return err
 }
 
-func resourceUserGroupMembershipCreate(d *schema.ResourceData, m interface{}) error {
+func resourceUserGroupMembershipCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
-	err := modifyUserGroupMembership(client, d, "add")
+	err := modifyUserGroupMembership(ctx, client, d, "add")
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	return resourceUserGroupMembershipRead(d, m)
+	return resourceUserGroupMembershipRead(ctx, d, m)
 }
 
-func resourceUserGroupMembershipRead(d *schema.ResourceData, m interface{}) error {
+func resourceUserGroupMembershipRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
 
@@ -84,10 +82,9 @@ func resourceUserGroupMembershipRead(d *schema.ResourceData, m interface{}) erro
 		"limit":   int32(100),
 	}
 
-	graphconnect, _, err := client.UserGroupMembersMembershipApi.GraphUserGroupMembersList(
-		context.TODO(), d.Get("groupid").(string), "", "", optionals)
+	graphconnect, _, err := client.UserGroupMembersMembershipApi.GraphUserGroupMembersList(ctx, d.Get("groupid").(string), "", "", optionals)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// The Userids are hidden in a super-complex construct, see
@@ -105,8 +102,15 @@ func resourceUserGroupMembershipRead(d *schema.ResourceData, m interface{}) erro
 	return nil
 }
 
-func resourceUserGroupMembershipDelete(d *schema.ResourceData, m interface{}) error {
+func resourceUserGroupMembershipDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	config := m.(*jcapiv2.Configuration)
 	client := jcapiv2.NewAPIClient(config)
-	return modifyUserGroupMembership(client, d, "remove")
+
+	err := modifyUserGroupMembership(ctx, client, d, "remove")
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	return nil
 }

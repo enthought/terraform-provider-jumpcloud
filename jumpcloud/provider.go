@@ -1,6 +1,11 @@
 package jumpcloud
 
-import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
 
 // Provider instantiates a terraform provider for Jumpcloud
 // This includes all operations on all supported resources and
@@ -34,7 +39,7 @@ func Provider() *schema.Provider {
 			"jumpcloud_ldap_server": dataResourceLdapServer(),
 			"jumpcloud_application": dataSourceApplication(),
 		},
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 }
 
@@ -47,11 +52,11 @@ func init() {
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	config := Config{
 		APIKey: d.Get("api_key").(string),
 		OrgID:  d.Get("org_id").(string),
 	}
 
-	return config.Client()
+	return config.Client(), nil
 }
