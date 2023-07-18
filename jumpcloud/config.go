@@ -14,7 +14,7 @@ type Config struct {
 
 // Client instantiates a jcapiv2.Configuration struct that is passed
 // to every Resource operation
-func (c *Config) Client() (interface{}, error) {
+func (c *Config) Client() interface{} {
 	config := jcapiv2.NewConfiguration()
 	config.AddDefaultHeader("x-api-key", c.APIKey)
 
@@ -22,5 +22,5 @@ func (c *Config) Client() (interface{}, error) {
 		config.AddDefaultHeader("x-org-id", c.OrgID)
 	}
 	// Instantiate the API client
-	return config, nil
+	return config
 }

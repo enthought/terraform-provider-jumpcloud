@@ -1,8 +1,5 @@
 resource "jumpcloud_user_group" "test_group" {
   name = "test_group"
-  attributes = {
-    posix_groups = "32:testerino"
-  }
 }
 
 resource "jumpcloud_user" "test_user1" {

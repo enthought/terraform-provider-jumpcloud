@@ -3,22 +3,22 @@
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) 0.13+
-- [Go](https://golang.org/doc/install) 1.14 (to build the provider plugin)
+- [Go](https://golang.org/doc/install) 1.20
 
 ## Building The Provider
 
-Clone repository to: `$GOPATH/src/github.com/cognotektgmbh/terraform-provider-jumpcloud`
+Clone repository to: `$GOPATH/src/github.com/enthought/terraform-provider-jumpcloud`
 
 ```sh
-mkdir -p $GOPATH/src/github.com/cognotektgmbh
-cd $GOPATH/src/github.com/cognotektgmbh
-git clone git@github.com:cognotektgmbh/terraform-provider-jumpcloud
+mkdir -p $GOPATH/src/github.com/enthought
+cd $GOPATH/src/github.com/enthought
+git clone git@github.com:enthought/terraform-provider-jumpcloud
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-cd $GOPATH/src/github.com/cognotektgmbh/terraform-provider-jumpcloud
+cd $GOPATH/src/github.com/enthought/terraform-provider-jumpcloud
 make build
 ```
 
