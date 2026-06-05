@@ -38,8 +38,17 @@ and deploy the new version to the users.
 
 If you're building the provider, follow the instructions to [install it as a plugin.](https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin) After placing it into your plugins directory,  run `terraform init` to initialize it.
 
-The Jumpcloud API key needs to be set before using the provider. It can either be retrieved via the API or through the UI : When selecting a resource, the ID is part of URL.
-Export `JUMPCLOUD_API_KEY` to set it.
+### Authentication
 
-The Jumpcloud "Organization ID" is optional as only needed for multi-tenant-setups.
-Export `JUMPCLOUD_ORG_ID` to set it.
+The provider supports two mutually-exclusive auth modes (configure one):
+
+* **Service-account OAuth (recommended):** set `client_id` + `client_secret`
+  (or export `JUMPCLOUD_CLIENT_ID` / `JUMPCLOUD_CLIENT_SECRET`) from a JumpCloud
+  Service Account. The provider exchanges them for a short-lived Bearer access
+  token via the `client_credentials` grant. Not tied to an individual account.
+* **Legacy x-api-key:** set `api_key` (or export `JUMPCLOUD_API_KEY`), an
+  admin-user API key retrieved via the API or the UI. OAuth takes precedence
+  when both are set.
+
+The Jumpcloud "Organization ID" is optional and only needed for
+multi-tenant-setups. Export `JUMPCLOUD_ORG_ID` to set it.
