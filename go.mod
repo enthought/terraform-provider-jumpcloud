@@ -1,6 +1,6 @@
 module github.com/enthought/terraform-provider-jumpcloud
 
-go 1.20
+go 1.26.10
 
 require (
 	github.com/TheJumpCloud/jcapi-go v3.0.0+incompatible
